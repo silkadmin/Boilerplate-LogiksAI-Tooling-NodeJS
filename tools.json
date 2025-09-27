@@ -1,0 +1,19 @@
+{
+    "test": {
+        "name": "test",
+        "description": "Testing Tool",
+        "inputSchema": {
+            "type": "object",
+            "description": "Input schema for Testing tool",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "description": "Example string."
+                }
+            },
+            "required": [
+                "message"
+            ]
+        }
+    }
+}
