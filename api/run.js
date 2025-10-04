@@ -17,13 +17,14 @@ export async function runTool(command) {
     }
     const toolModule = await import(`file://${modulePath}`);
     if (typeof toolModule.run === "function") {
-      const response = await toolModule.run(message, params);
+      var response = await toolModule.run(message, params);
+      response.command = command;
       return { response };
     } else {
-      return { status: "error", message: `Tool '${toolName}' missing run()` };
+      return { status: "error", command: command, message: `Tool '${toolName}' missing run()` };
     }
   } catch (err) {
-    return { status: "error", message: String(err) };
+    return { status: "error", command: command, message: String(err) };
   }
 }
 
