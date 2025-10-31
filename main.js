@@ -5,8 +5,8 @@ import { startLaiPluginClient } from "./api/laiplugin.js";
 async function main() {
   await Promise.all([
     runRestServer(),
-    startWebSocketServer(),
-    startLaiPluginClient()
+    // startWebSocketServer(),
+    // startLaiPluginClient()
   ]);
 }
 

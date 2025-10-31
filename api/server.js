@@ -63,6 +63,7 @@ export async function runRestServer() {
     }
   });
 
+
   app.get("/get_result", (req, res) => {
     const refId = req.query.reference_id;
     const cached = getCachedResult(refId);
@@ -75,11 +76,16 @@ export async function runRestServer() {
 
   app.post("/run", async (req, res) => {
     try {
+
+     // console.log(req.query);
+      
       const { tool, message = "", ...params } = req.query;
       if (!tool) return res.status(400).json({ error: "Tool required" });
 
       const command = { command: "run", tool, message, params };
       const result = await runTool(command);
+
+      
       res.json(result);
     } catch (err) {
       res.status(500).json({ error: String(err) });
