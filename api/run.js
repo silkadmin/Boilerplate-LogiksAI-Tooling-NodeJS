@@ -4,35 +4,28 @@ const toolsDir = path.resolve("tools");
 
 export async function runTool(command) {
 
-  
+
   const toolName = (command.tool || "").toLowerCase();
   const message = command.message || "";
   const params = command.params || {};
 
   if (command.command === "list_tools") return listWorkingTools();
   else if (command.command === "list_tools_all") return listAvailableTools();
-  
+
   try {
     const modulePath = path.join(toolsDir, `${toolName}.js`);
 
-    
+
     if (!fs.existsSync(modulePath)) {
       return { status: "error", message: `Tool '${toolName}' not found` };
     }
     const toolModule = await import(`file://${modulePath}`);
 
-    
-
-
-    
     if (typeof toolModule.run === "function") {
 
       var response = await toolModule.run(message, params);
 
-      response.command = command;
-
-      
-    
+      //response.command = command;
       return { response };
     } else {
       return { status: "error", command: command, message: `Tool '${toolName}' missing run()` };
@@ -55,7 +48,7 @@ export function listWorkingTools() {
     const config = JSON.parse(fs.readFileSync("tools.json", "utf-8"));
     return Object.values(config).filter(
       t => {
-        if (!fs.existsSync(path.resolve("tools",`${t.name}.js`))) return false;
+        if (!fs.existsSync(path.resolve("tools", `${t.name}.js`))) return false;
         return (t.inputSchema && Object.keys(t.inputSchema).length) || (t.identitySchema && Object.keys(t.identitySchema).length);
       }
     );
@@ -70,7 +63,7 @@ export function listNotWorkingTools() {
     const config = JSON.parse(fs.readFileSync("unused_tools.json", "utf-8"));
     return Object.values(config).filter(
       t => (t.inputSchema && Object.keys(t.inputSchema).length) ||
-           (t.identitySchema && Object.keys(t.identitySchema).length)
+        (t.identitySchema && Object.keys(t.identitySchema).length)
     );
   } catch {
     return [];
