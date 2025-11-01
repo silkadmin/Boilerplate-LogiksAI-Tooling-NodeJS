@@ -11,6 +11,7 @@ import {
   listNotWorkingTools
 } from "./run.js";
 
+import multer from "multer";
 dotenv.config();
 
 const DATA_DIR = "data";
@@ -63,6 +64,7 @@ export async function runRestServer() {
     }
   });
 
+
   app.get("/get_result", (req, res) => {
     const refId = req.query.reference_id;
     const cached = getCachedResult(refId);
@@ -73,18 +75,47 @@ export async function runRestServer() {
     }
   });
 
-  app.post("/run", async (req, res) => {
-    try {
-      const { tool, message = "", ...params } = req.query;
-      if (!tool) return res.status(400).json({ error: "Tool required" });
+  // app.post("/run", async (req, res) => {
+  //   try {
 
-      const command = { command: "run", tool, message, params };
-      const result = await runTool(command);
-      res.json(result);
-    } catch (err) {
-      res.status(500).json({ error: String(err) });
-    }
-  });
+     
+      
+  //     const { tool, message = "", ...params } = req.query;
+  //     if (!tool) return res.status(400).json({ error: "Tool required" });
+
+  //     const command = { command: "run", tool, message, params };
+  //     const result = await runTool(command);
+
+      
+  //     res.json(result);
+  //   } catch (err) {
+  //     res.status(500).json({ error: String(err) });
+  //   }
+  // });
+
+const upload = multer({ dest: "tmp/" }); // temporary upload directory
+
+app.post("/run", upload.single("file"), async (req, res) => {
+  try {
+    const { tool, message = "", ...params } = req.query;
+    if (!tool) return res.status(400).json({ error: "Tool required" });
+
+
+    // Merge req.body (for content mode) and req.file (for attachment mode)
+    if (req.file) params.file = req.file;
+    else if (req.body.file) params.file = req.body.file;
+
+    // prepare command object
+    const command = { command: "run", tool, message, params };
+
+    // run tool dynamically
+    const result = await runTool(command);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 
   app.get("/list_tools", (_, res) => res.json({ tools: listAvailableTools() }));
   app.get("/list_usefull_tools", (_, res) =>
