@@ -36,6 +36,7 @@ export async function uploadLocalBucket(
     }
 
     const baseDir = path.join(process.cwd(), "buckets");
+
     const bucketDir = path.join(baseDir, bucket);
 
     //Check if bucket exists
@@ -53,7 +54,7 @@ export async function uploadLocalBucket(
       fs.mkdirSync(finalDir, { recursive: true });
     }
 
-    // ✅ Determine final file path
+    //Determine final file path
     const destFilePath = path.join(finalDir, filename);
 
     //Prevent overwriting unless explicitly allowed
@@ -77,7 +78,7 @@ export async function uploadLocalBucket(
       mimetype,
       mode,
       exp,
-      path: destFilePath,
+      path: `buckets/${bucket}/${filename}`,
       uploaded_at: new Date().toISOString(),
       url: `/buckets/${bucket}${uploadPath ? `/${uploadPath}` : ""}/${filename}`,
     };

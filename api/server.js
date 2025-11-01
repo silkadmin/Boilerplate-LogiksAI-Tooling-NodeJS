@@ -11,6 +11,7 @@ import {
   listNotWorkingTools
 } from "./run.js";
 
+import multer from "multer";
 dotenv.config();
 
 const DATA_DIR = "data";
@@ -74,23 +75,42 @@ export async function runRestServer() {
     }
   });
 
-  app.post("/run", async (req, res) => {
-    try {
+  // app.post("/run", async (req, res) => {
+  //   try {
 
      
       
-      const { tool, message = "", ...params } = req.query;
-      if (!tool) return res.status(400).json({ error: "Tool required" });
+  //     const { tool, message = "", ...params } = req.query;
+  //     if (!tool) return res.status(400).json({ error: "Tool required" });
 
-      const command = { command: "run", tool, message, params };
-      const result = await runTool(command);
+  //     const command = { command: "run", tool, message, params };
+  //     const result = await runTool(command);
 
       
-      res.json(result);
-    } catch (err) {
-      res.status(500).json({ error: String(err) });
-    }
-  });
+  //     res.json(result);
+  //   } catch (err) {
+  //     res.status(500).json({ error: String(err) });
+  //   }
+  // });
+
+const upload = multer({ dest: "tmp/" }); // temporary upload directory
+
+app.post("/run", upload.single("file"), async (req, res) => {
+  try {
+    const { tool, message = "", ...params } = req.query;
+    if (!tool) return res.status(400).json({ error: "Tool required" });
+
+    // prepare command object
+    const command = { command: "run", tool, message, params, file: req.file };
+
+    // run tool dynamically
+    const result = await runTool(command);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 
   app.get("/list_tools", (_, res) => res.json({ tools: listAvailableTools() }));
   app.get("/list_usefull_tools", (_, res) =>
