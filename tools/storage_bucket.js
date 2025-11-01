@@ -63,16 +63,8 @@ export async function run(message, params, file) {
 
       switch (storage_type) {
         case "local":
-          return await uploadLocalBucket(
-            bucket,
-            storage_type,
-            path || "",
-            filename,
-            mimetype,
-            mode,
-            exp,
-            file
-          );
+        return await uploadLocalBucket(bucket, storage_type, path, filename, mimetype, mode, exp, params.file);
+
 
         case "s3":
           return { status: "error", message: "S3 upload not yet implemented" };

@@ -100,8 +100,13 @@ app.post("/run", upload.single("file"), async (req, res) => {
     const { tool, message = "", ...params } = req.query;
     if (!tool) return res.status(400).json({ error: "Tool required" });
 
+
+    // Merge req.body (for content mode) and req.file (for attachment mode)
+    if (req.file) params.file = req.file;
+    else if (req.body.file) params.file = req.body.file;
+
     // prepare command object
-    const command = { command: "run", tool, message, params, file: req.file };
+    const command = { command: "run", tool, message, params };
 
     // run tool dynamically
     const result = await runTool(command);

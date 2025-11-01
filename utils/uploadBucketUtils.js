@@ -31,54 +31,60 @@ export async function uploadLocalBucket(
       throw new Error(`Unsupported storage type: ${storage_type}`);
     }
 
-    if (!file || !file.path) {
-      throw new Error("File not found in request.");
-    }
-
     const baseDir = path.join(process.cwd(), "buckets");
-
     const bucketDir = path.join(baseDir, bucket);
 
-    //Check if bucket exists
+    // Check if bucket exists
     if (!fs.existsSync(bucketDir)) {
       throw new Error(`Bucket "${bucket}" does not exist.`);
     }
 
-    //Determine final upload directory (including optional subpath)
-    const finalDir = uploadPath
-      ? path.join(bucketDir, uploadPath)
-      : bucketDir;
+    // Determine target directory
+    const finalDir = uploadPath ? path.join(bucketDir, uploadPath) : bucketDir;
+    if (!fs.existsSync(finalDir)) fs.mkdirSync(finalDir, { recursive: true });
 
-    //Create subdirectories if needed
-    if (!fs.existsSync(finalDir)) {
-      fs.mkdirSync(finalDir, { recursive: true });
-    }
-
-    //Determine final file path
     const destFilePath = path.join(finalDir, filename);
 
-    //Prevent overwriting unless explicitly allowed
+    // Prevent overwrite unless allowed
     if (fs.existsSync(destFilePath) && !overwrite) {
       throw new Error(`File "${filename}" already exists in bucket "${bucket}".`);
     }
 
-    //Copy uploaded file to bucket
-    await fs.promises.copyFile(file.path, destFilePath);
+    // Handle file saving based on mode
+    if (mode === "attachment") {
+      // Expect file object from multer
+      if (!file || !file.path) {
+        throw new Error("No file uploaded in attachment mode.");
+      }
 
-    //(Optional) remove temp file if multer stored it in /tmp
-    if (file.path.includes("/tmp") && fs.existsSync(file.path)) {
-      fs.unlinkSync(file.path);
+      await fs.promises.copyFile(file.path, destFilePath);
+      if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
     }
 
-    //Prepare metadata
+    else if (mode === "content") {
+      // Expect file as base64 string
+      if (!file || typeof file !== "string") {
+        throw new Error("File content must be a base64 string in content mode.");
+      }
+
+      // Decode base64
+      const buffer = Buffer.from(file, "base64");
+      await fs.promises.writeFile(destFilePath, buffer);
+    }
+
+    else {
+      throw new Error(`Invalid mode: ${mode}. Use "attachment" or "content".`);
+    }
+
+    // Build metadata
     const metadata = {
       bucket,
       storage_type,
       filename,
       mimetype,
       mode,
+      path: `/buckets/${bucket}${uploadPath ? `/${uploadPath}` : ""}/${filename}`,
       exp,
-      path: `buckets/${bucket}/${filename}`,
       uploaded_at: new Date().toISOString(),
       url: `/buckets/${bucket}${uploadPath ? `/${uploadPath}` : ""}/${filename}`,
     };
@@ -90,11 +96,9 @@ export async function uploadLocalBucket(
       message: `File "${filename}" uploaded successfully to bucket "${bucket}"`,
       data: metadata,
     };
+
   } catch (error) {
     console.error("Error uploading file:", error.message);
-    return {
-      success: false,
-      error: error.message,
-    };
+    return { success: false, error: error.message };
   }
 }
