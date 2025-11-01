@@ -11,7 +11,7 @@ export async function run(message, params) {
           {
             name: "local",
             description: "Will store files in local file system",
-            requiredParams: ["bucket_name", "tool", "storage_type"],
+            requiredParams: ["bucket_name", "tool", "storage_type","message"],
           },
           { name: "s3", description: "AWS S3 storage" },
           { name: "oneDrive", description: "Microsoft OneDrive storage" },
@@ -20,7 +20,7 @@ export async function run(message, params) {
       };
 
     case "create_bucket":
-      {
+      
         const { bucket_name, storage_type } = params;
 
         if (!bucket_name || !storage_type) {
@@ -43,7 +43,7 @@ export async function run(message, params) {
             return { status: "error", message: "Unsupported storage type" };
         }
 
-      }
+      
 
     default:
       return {
