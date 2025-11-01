@@ -17,7 +17,7 @@ export async function createLocalBucket(bucket_name) {
       return {
         status: "exists",
         message: `Bucket '${bucket_name}' already exists.`,
-        path: bucketDir,
+        path: `buckets/${bucket_name}`,
       };
     }
 
@@ -27,7 +27,7 @@ export async function createLocalBucket(bucket_name) {
     return {
       status: "success",
       message: `local bucket ${bucket_name} created successfully`,
-      path: bucketDir,
+      path: `buckets/${bucket_name}`,
     }
   } catch (error) {
 

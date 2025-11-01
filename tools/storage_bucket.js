@@ -18,9 +18,10 @@ export async function run(message, params) {
           { name: "google_drive", description: "Google Drive storage" },
         ],
       };
+      
 
     case "create_bucket":
-      
+      {
         const { bucket_name, storage_type } = params;
 
         if (!bucket_name || !storage_type) {
@@ -44,7 +45,7 @@ export async function run(message, params) {
         }
 
       
-
+      }
     default:
       return {
         status: "error",

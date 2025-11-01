@@ -2,6 +2,28 @@
   "bucket": {
     "name": "test_bucket7",
     "type": "local",
-    "path": "bucket/test_bucket7"
+    "path": "buckets/test_bucket7"
+  }
+}
+
+
+switch (type) {
+  case "create_bucket":
+    const { bucket_name } = params; // ok
+    break;
+  case "delete_bucket":
+    const { bucket_name } = params; //SyntaxError: Identifier already declared
+    break;
+}
+
+
+switch (type) {
+  case "create_bucket": {
+    const { bucket_name } = params; // fine here
+    break;
+  }
+  case "delete_bucket": {
+    const { bucket_name } = params; // also fine here
+    break;
   }
 }
