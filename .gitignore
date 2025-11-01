@@ -9,7 +9,7 @@ lerna-debug.log*
 logs/
 .env
 .DS_Store
-temp/
+tmp/
 buckets/
 
 
