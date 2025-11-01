@@ -1,5 +1,5 @@
 import { createLocalBucket, createGoogleDriveBucket, createS3Bucket, createOneDriveBucket } from '../utils/createBucketUtils.js'
-
+import { uploadLocalBucket } from '../utils/uplaodBucketUtils.js';
 export async function run(message, params) {
   console.log("Storage bucket tool called with:", { message, params });
 
@@ -36,7 +36,7 @@ export async function run(message, params) {
             return await createLocalBucket(bucket_name);
           case "s3":
             return await createS3Bucket(bucket_name);
-          case "oneDrive":
+          case "one_drive":
             return await createOneDriveBucket(bucket_name);
           case "google_drive":
             return await createGoogleDriveBucket(bucket_name);
@@ -44,7 +44,33 @@ export async function run(message, params) {
             return { status: "error", message: "Unsupported storage type" };
         }
 
-      
+      }
+
+      case "upload_file":
+        {
+
+          const { bucket, storage_type,path,filename,mimetype,mode,exp } = params;
+
+             if (!bucket || !storage_type || !path || !filename || !mimetype || !mode || !exp) {
+          return {
+            status: "error",
+            message: "Missing required parameters: bucket_name or storage_type or ",
+          };
+        }
+
+          switch (storage_type) {
+          case "local": uploadLocalBucket(bucket, storage_type,path,filename,mimetype,mode,exp)
+            return await (bucket_name);
+          case "s3":
+            //
+          case "one_drive":
+            //
+          case "google_drive":
+            //
+          default:
+            return { status: "error", message: "Unsupported storage type" };
+        }
+
       }
     default:
       return {

@@ -77,7 +77,7 @@ export async function runRestServer() {
   app.post("/run", async (req, res) => {
     try {
 
-     // console.log(req.query);
+     
       
       const { tool, message = "", ...params } = req.query;
       if (!tool) return res.status(400).json({ error: "Tool required" });
